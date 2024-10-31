@@ -486,7 +486,6 @@ function aimLab(model) {
     if (millis() - circleTimer > timeBetweenCircles) {
       score--;
       nextCircle();
-      gameOver = true;
     }
   
     drawCircle();
