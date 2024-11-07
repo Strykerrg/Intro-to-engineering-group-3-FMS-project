@@ -104,6 +104,13 @@ function draw() {
   else if (page === "reaction") {
     showReactionGame();
   }
+  else if (page == "patternDragMenu") {
+    patternDragMenu();
+  }
+  else if (page == "patternDragEasy" ||page == "patternDragMedium" ||page == "patternDragHard") {
+    patternDrag();
+  }
+
   //TRAIL
   stroke("white");
   strokeWeight(2);
@@ -128,6 +135,7 @@ function homePage() {
   //Basic Background elements
   background(Bg);
   adjustBrightness(Brightness);
+  textAlign(LEFT , LEFT);
     
   //text alt
   stroke("black");
@@ -160,6 +168,7 @@ function homePage() {
 function settingsPage() {
   //Basic Background elements
   background(Bg);
+  textAlign(LEFT , LEFT);
   
   //Volume Bar
   fill("black");
@@ -176,7 +185,7 @@ function settingsPage() {
   stroke("black");
   volume = map(volbar , 245 , 395 , 0 , 1);
   circle(volbar , 165 , 20);
-  bgMusic.setVolume(volume);
+  //bgMusic.setVolume(volume);
   
   //Brightness
   fill("black");
@@ -208,11 +217,7 @@ function settingsPage() {
   gameName();
 }
 
-function mousePressed() {
-  //HOME PAGE RETURN
-  if ((page == "Settings") && (mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
-      page = "Home";
-  }
+function mousePressed() { //this function starts as soon as mouse is pressed
   //VOL ADJUST
   if ((page == "Settings") && (mouseX > 240 && mouseX < 400) && (mouseY > 155 && mouseY < 175)) {
     volbar = mouseX;
@@ -220,7 +225,7 @@ function mousePressed() {
   //EXIT EXECUTION
   if (((page == "Home") || (page == "Settings")) && (mouseX > 535 && mouseX <615) && (mouseY > 31 && mouseY < 111)) {
     noLoop();
-    bgMusic.stop();
+    //bgMusic.stop();
   }
   //BRIGHTNESS ADJUST
   if ((page == "Settings") && ((mouseX > 240 && mouseX < 400) && (mouseY > 195 && mouseY < 215))) {
@@ -230,9 +235,24 @@ function mousePressed() {
   //if (!bgMusic.isPlaying()) {
     //bgMusic.loop();
   //}
-  
+  //Mouse Press Aim Lab
   if (page == "aimLabEasy" || page == "aimLabMedium" || page == "aimLabHard") {
     clickCircle();
+  }
+  //mouse Press Pattern Drag
+  if (page == "patternDragEasy" || page == "patternDragMedium" || page == "patternDragHard") {
+    patternDragMousePressed();
+  }
+}
+
+function mouseClicked() { //this function starts when mouse is released
+  //AIM LAB ICON
+  if (page == "Home" && ((mouseX > 105 && mouseX < 185) && (mouseY > 215 && mouseY < 295))) {
+    page = "aimLabMenu";
+  }
+  //PATTERN DRAG ICON
+  if (page == "Home" && (mouseX > 285 && mouseX < 365) && (mouseY > 215 && mouseY < 295)) {
+    page = "patternDragMenu";
   }
 }
 
@@ -283,6 +303,9 @@ function settingsHover() {
     BAy = 255;
     BAlen = 80;
     BAwid = 80;
+    if (mouseIsPressed) {
+      page = "Home";
+    }
   }
   else {
     BAx = 30;
@@ -300,10 +323,6 @@ function homeHover() {
     ALy = 215;
     ALlen = 80;
     ALwid = 80;
-    if (mouseIsPressed) {
-      page = "aimLabMenu";
-      strokeWeight(1);
-    }
   }
   else {
     ALx = 110;
@@ -415,6 +434,24 @@ function aimLabMenu() {
   drawButton('Easy', width / 2, 120, "aimLabEasy");
   drawButton('Medium', width / 2, 180, "aimLabMedium");
   drawButton('Hard', width / 2, 240, "aimLabHard");
+  image(backArrow , BAx , BAy, BAlen , BAwid);
+  if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
+    BAx = 25;
+    BAy = 255;
+    BAlen = 80;
+    BAwid = 80;
+    if (mouseIsPressed) {
+      //canClick = false;
+      page = "Home";
+      //setTimeout(() => {canClick = true;} , 25);
+    }
+  }
+  else {
+    BAx = 30;
+    BAy = 260;
+    BAlen = 70;
+    BAwid = 70;
+  }
 }
 
 function drawButton(label, x, y, mode) {
@@ -422,7 +459,7 @@ function drawButton(label, x, y, mode) {
     fill(200);
     if (mouseIsPressed) {
       page = mode;
-      score = 0;
+      score = 0; //entering game: extra click registered -> keeping score one to balance reduction
       remaining = 30; 
       circleTimer = 0;
       gameOver = false;
@@ -430,6 +467,7 @@ function drawButton(label, x, y, mode) {
         case "aimLabEasy":
           timeBetweenCircles = 2000;
           circleSize = 40;
+          score = 0;
           difficulty = "Easy";
           nextCircle();
           break;
@@ -468,7 +506,7 @@ function drawButton(label, x, y, mode) {
 
 function aimLab(model) {
     background(Bg);
-  
+    strokeWeight(1);
     
     textSize(24);
     fill(0);
@@ -489,6 +527,9 @@ function aimLab(model) {
     }
   
     drawCircle();
+    if (keyCode == ESCAPE && keyIsPressed) {
+      page = "aimLabMenu";
+    }
 }
   
 function nextCircle() {
@@ -526,12 +567,16 @@ function clickCircle() {
   
 function displayScore() {
     fill(0);
+    strokeWeight(1);
+    stroke("black");
     textSize(16);
     text(`Score: ${score}`, width / 4, 20);
 }
   
 function displayRemaining() {
     fill(0);
+    strokeWeight(1);
+    stroke("black");
     textSize(16);
     text(`Remaining: ${remaining}`, (3 * width) / 4, 20);
 }
@@ -546,7 +591,251 @@ function displayGameOver() {
     text('Press Enter To Continue' , width / 2 , height / 2 + 100);
     noFill();
     rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
-    if (keyCode == ENTER) {
+    if (keyCode == ENTER && keyIsPressed) {
       page = "aimLabMenu";
     }
+}
+
+//PATTERN DRAG CODE
+//PATTERN DRAG VARIABLES
+let dots = [];
+let pattern = [];
+let userPattern = [];
+let showPattern = true;
+let timer = 10;
+//let gameOver = false;
+let patternStep = 0;
+score = 0;
+
+//PATTERN DRAG MENU
+function patternDragMenu() {
+  background(Bg);
+  strokeWeight(1);
+  textSize(32);
+  textAlign(CENTER , CENTER);
+  fill(0);
+  text('Pattern Drag', width / 2, 50);
+
+  difficultyChoose('Easy', width / 2, 120, "patternDragEasy");
+  difficultyChoose('Medium', width / 2, 180, "patternDragMedium");
+  difficultyChoose('Hard', width / 2, 240, "patternDragHard");
+  image(backArrow , BAx , BAy, BAlen , BAwid);
+  if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
+    BAx = 25;
+    BAy = 255;
+    BAlen = 80;
+    BAwid = 80;
+    if (mouseIsPressed) {
+      //canClick = false;
+      page = "Home";
+      //setTimeout(() => {canClick = true;} , 25);
+    }
+  }
+  else {
+    BAx = 30;
+    BAy = 260;
+    BAlen = 70;
+    BAwid = 70;
+  }
+}
+
+function difficultyChoose(label, x, y, mode) {
+    if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
+        fill(200);
+        if (mouseIsPressed) {
+          page = mode;
+          score = 0;
+          remaining = 15; 
+          gameOver = false;
+          switch(page) {
+            case "patternDragEasy":
+              difficulty = "Easy";
+              for (let i = 0; i < 6; i++) {
+                let x = (i % 3) * 100 + 200;
+                let y = floor(i / 3) * 100 + 150;
+                dots.push(createVector(x, y));
+              }
+              generatePattern();
+              setTimeout(() => {
+              showPattern = false; // Show pattern for 3 seconds
+              }, 3000);
+              setInterval(updateTimer, 1000);
+              break;
+            case "patternDragMedium":
+              difficulty = "Medium";
+              break;
+            case "patternDragHard":
+              difficulty = "Hard";
+              break;
+            default:
+              return;
+          }
+        }
+    } else {
+        fill(255);
+      }
+    stroke(0);
+    rect(x - 100, y - 20, 200, 40 , 5 , 5 , 5 , 5);
+    fill(0);
+    textSize(20);
+    text(label, x, y);
+}
+
+//PATTERN DRAG GAME
+
+function patternDrag() {
+  strokeWeight(1);
+  background(220);
+  drawDots();
+  if (remaining == 0) {
+    gameOver = true;
+  }
+
+  if (showPattern) {
+    drawPattern();
+  } else {
+    drawUserPattern();
+  }
+  if (gameOver) {
+    textSize(32);
+    fill(255, 0, 0);
+    text("Game Over!", width / 2 , height / 2);
+  } else if (timer <= 0) {
+    gameOver = true;
+  }
+  displayScore();
+  displayRemaining();
+  if (keyCode == ESCAPE && keyIsPressed) {
+    page = "patternDragMenu";
+  }
+}
+
+function generatePattern() {
+    let availableDots = [0, 1, 2, 3, 4, 5];
+    let startDotIndex = floor(random(0, availableDots.length));
+    let currentDot = availableDots[startDotIndex];
+    availableDots.splice(startDotIndex, 1); // Remove the used dot
+  
+    // Create 3 connected segments
+    for (let i = 0; i < 3; i++) {
+      let nextDotIndex = floor(random(0, availableDots.length));
+      pattern.push(currentDot); // Add current dot to pattern
+      currentDot = availableDots[nextDotIndex]; // Move to the next dot
+      availableDots.splice(nextDotIndex, 1); // Remove the used dot
+    }
+    pattern.push(currentDot); // Add the last dot to complete the pattern
+    remaining--;
+}
+  
+function drawDots() {
+  for (let dot of dots) {
+    fill(0);
+    ellipse(dot.x, dot.y, 20, 20);
+  }
+  // Draw starting indicator
+  if (pattern.length > 0) {
+    fill(255, 0, 0); // Red color for the start indicator
+    ellipse(dots[pattern[0]].x, dots[pattern[0]].y, 30, 30); // Larger dot for start
+  }
+}
+  
+function drawPattern() {
+  stroke(0, 0, 255);
+  strokeWeight(4);
+  for (let i = 0; i < pattern.length - 1; i++) {
+    line(dots[pattern[i]].x, dots[pattern[i]].y, 
+         dots[pattern[i + 1]].x, dots[pattern[i + 1]].y);
+  }
+}
+  
+function patternDragMousePressed() {
+  if (!gameOver && !showPattern) {
+    userPattern = [];
+  }
+}
+  
+function mouseDragged() {
+  if (!gameOver && !showPattern) {
+    let closestDot = findClosestDot(mouseX, mouseY);
+    if (closestDot !== -1 && !userPattern.includes(closestDot)) {
+      userPattern.push(closestDot);
+    }
+  }
+}
+  
+function mouseReleased() {
+  if (!gameOver && !showPattern) {
+    checkUserPattern();
+  }
+}
+  
+function findClosestDot(x, y) {
+  let closestIndex = -1;
+  let closestDistance = 30;
+  for (let i = 0; i < dots.length; i++) {
+    let d = dist(x, y, dots[i].x, dots[i].y);
+    if (d < closestDistance) {
+      closestDistance = d;
+      closestIndex = i;
+    }
+  }
+  return closestIndex;
+}
+  
+function checkUserPattern() {
+  showPattern = false;
+  let correct = true;
+  if (userPattern.length === pattern.length) {
+    for (let i = 0; i < pattern.length; i++) {
+      if (userPattern[i] !== pattern[i]) {
+        score--;
+        correct = false;
+        break;
+      }
+    }
+    if (correct) {
+      score++;
+      //alert("You win!");
+    }
+  } else {
+    score--;
+    //gameOver = true;
+  }
+  resetGame();
+}
+  
+function drawUserPattern() {
+  stroke(255, 0, 0);
+  strokeWeight(4);
+  for (let i = 0; i < userPattern.length - 1; i++) {
+    line(dots[userPattern[i]].x, dots[userPattern[i]].y, 
+         dots[userPattern[i + 1]].x, dots[userPattern[i + 1]].y);
+  }
+}
+  
+function updateTimer() {
+  if (!gameOver && !showPattern) {
+    timer--;
+  }
+  if (timer <= 0) {
+    gameOver = true;
+  }
+}
+  
+function keyPressed() {
+  if (key === 'r') {
+    resetGame();
+  }
+}
+  
+function resetGame() {
+  pattern = [];
+  userPattern = [];
+  showPattern = true;
+  gameOver = false;
+  timer = 10;
+  generatePattern();
+  setTimeout(() => {
+    showPattern = false; // Show pattern for 3 seconds
+  }, 3000);
 }
