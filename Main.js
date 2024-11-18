@@ -6,7 +6,7 @@ let trailMax = 10;
 let volbar = 395;
 let volume;
 //BRIGHTNESS BAR VAR
-let brightnessBar = 320;
+let brightnessBar = 395;
 let Brightness = 1;
 
 //IMG
@@ -110,6 +110,9 @@ function draw() {
   else if (page == "patternDragEasy" ||page == "patternDragMedium" ||page == "patternDragHard") {
     patternDrag();
   }
+  else if (page == "colorClickerMenu") {
+    colorClickerMenu();
+  }
 
   //TRAIL
   stroke("white");
@@ -129,12 +132,13 @@ function draw() {
   strokeWeight(5);
   noFill();
   rect(0 , 0 , 640 , 360);
+
+  adjustBrightness(Brightness);
 }
 
 function homePage() {
   //Basic Background elements
   background(Bg);
-  adjustBrightness(Brightness);
   textAlign(LEFT , LEFT);
     
   //text alt
@@ -148,7 +152,6 @@ function homePage() {
 
   //Images loading [Top Line]
   image(img1 , STx , STy , STlen , STwid);
-  image(img2 , HPx , HPy , HPlen , HPwid);
   image(img3 , ETx , ETy , ETlen , ETwid);
   
   //Images loading [bottom Line]
@@ -200,16 +203,14 @@ function settingsPage() {
   
   fill("black");
   stroke("black");
-  Brightness = map(brightnessBar , 245 , 395 , 0 , 2);
-  circle(brightnessBar , 205 , 20);  
-  adjustBrightness(Brightness);
+  Brightness = map(brightnessBar , 245 , 395 , 0 , 1);
+  circle(brightnessBar , 205 , 20);
   
   //HOVER
   settingsHover();
 
   //Images loading [Top Line]
   image(img1 , STx , STy , STlen , STwid);
-  image(img2 , HPx , HPy , HPlen , HPwid);
   image(img3 , ETx , ETy , ETlen , ETwid); 
   image(backArrow , BAx , BAy, BAlen , BAwid);
   
@@ -225,16 +226,13 @@ function mousePressed() { //this function starts as soon as mouse is pressed
   //EXIT EXECUTION
   if (((page == "Home") || (page == "Settings")) && (mouseX > 535 && mouseX <615) && (mouseY > 31 && mouseY < 111)) {
     noLoop();
+    select('canvas').remove();
     //bgMusic.stop();
   }
   //BRIGHTNESS ADJUST
   if ((page == "Settings") && ((mouseX > 240 && mouseX < 400) && (mouseY > 195 && mouseY < 215))) {
     brightnessBar = mouseX;
   }
-  //Music
-  //if (!bgMusic.isPlaying()) {
-    //bgMusic.loop();
-  //}
   //Mouse Press Aim Lab
   if (page == "aimLabEasy" || page == "aimLabMedium" || page == "aimLabHard") {
     clickCircle();
@@ -254,10 +252,13 @@ function mouseClicked() { //this function starts when mouse is released
   if (page == "Home" && (mouseX > 285 && mouseX < 365) && (mouseY > 215 && mouseY < 295)) {
     page = "patternDragMenu";
   }
+  //COLOR CLICKER ICON
+  if (page == "Home" && (mouseX > 465 && mouseX < 545) && (mouseY > 215 && mouseY < 295)) {
+    page = "colorClickerMenu";
+  }
 }
 
 function settingsHover() {
-  //clicker hover animaion
   //SETTINGS
   if ((mouseX > 25 && mouseX < 115) && (mouseY > 15 && mouseY < 105)) {
     STx = 25;
@@ -270,19 +271,6 @@ function settingsHover() {
     STy = 20;
     STlen = 100;
     STwid = 100;
-  }
-  //HELP
-  if ((mouseX > 145 && mouseX < 225) && (mouseY > 31 && mouseY < 111)) {
-    HPx = 145;
-    HPy = 31;
-    HPlen = 80;
-    HPwid = 80;
-  }
-  else {
-    HPx = 150;
-    HPy = 36;
-    HPlen = 70;
-    HPwid = 70;
   }
   //EXIT
   if ((mouseX > 535 && mouseX < 615) && (mouseY > 31 && mouseY < 111)) {
@@ -316,7 +304,6 @@ function settingsHover() {
 }
 
 function homeHover() {
-  //clicker hover animaion
   //AIM LAB
   if ((mouseX > 105 && mouseX < 185) && (mouseY > 215 && mouseY < 295)) {
     ALx = 105;
@@ -372,19 +359,6 @@ function homeHover() {
     STlen = 100;
     STwid = 100;
   }
-  //HELP
-  if ((mouseX > 145 && mouseX < 225) && (mouseY > 31 && mouseY < 111)) {
-    HPx = 145;
-    HPy = 31;
-    HPlen = 80;
-    HPwid = 80;
-  }
-  else {
-    HPx = 150;
-    HPy = 36;
-    HPlen = 70;
-    HPwid = 70;
-  }
   //EXIT
   if ((mouseX > 535 && mouseX < 615) && (mouseY > 31 && mouseY < 111)) {
     ETx = 535;
@@ -410,10 +384,47 @@ function adjustBrightness(factor) {
   updatePixels();
 }
 
+//EXERCISES ___________________________________________________________________________________________________________________________
+//Common Variables
+let score = 0;
+
+//Common Functions
+function displayScore() {
+  fill(0);
+  strokeWeight(1);
+  stroke("black");
+  textSize(16);
+  text(`Score: ${score}`, width / 4, 20);
+}
+
+function displayRemaining() {
+  fill(0);
+  strokeWeight(1);
+  stroke("black");
+  textSize(16);
+  text(`Remaining: ${remaining}`, (3 * width) / 4, 20);
+}
+
+function displayGameOver(gameMode) {
+  background(Bg);
+  textSize(32);
+  stroke("black");
+  strokeWeight(1);
+  fill(0);
+  text('Game Over', width / 2, height / 2 - 30);
+  textSize(24);
+  text(`Final Score: ${score}`, width / 2, height / 2 + 10);
+  text('Press Enter To Continue' , width / 2 , height / 2 + 100);
+  noFill();
+  rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
+  if (keyCode == ENTER && keyIsPressed) {
+    page = gameMode;
+  }
+}
+
 //AIM LAB CODE ------------------------------------------------------------------------------------------------------------------------
 //GAME VARIABLES
 let circleClick;
-let score;
 let remaining; 
 let circleTimer;
 let timeBetweenCircles; 
@@ -421,19 +432,20 @@ let gameOver;
 let circleSize;
 let difficulty;
 
-//AIM LAB MENU _____________________________________________
+//AIM LAB MENU ______________________________________________
 
 function aimLabMenu() {
   background(Bg);
+  adjustBrightness(Brightness);
   strokeWeight(1);
   textSize(32);
   textAlign(CENTER , CENTER);
   fill(0);
   text('Reaction + Hand-eye Coordination Trainer', width / 2, 50);
 
-  drawButton('Easy', width / 2, 120, "aimLabEasy");
-  drawButton('Medium', width / 2, 180, "aimLabMedium");
-  drawButton('Hard', width / 2, 240, "aimLabHard");
+  difficultyChooseAL('Easy', width / 2, 120, "aimLabEasy");
+  difficultyChooseAL('Medium', width / 2, 180, "aimLabMedium");
+  difficultyChooseAL('Hard', width / 2, 240, "aimLabHard");
   image(backArrow , BAx , BAy, BAlen , BAwid);
   if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
     BAx = 25;
@@ -441,9 +453,7 @@ function aimLabMenu() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
-      //canClick = false;
       page = "Home";
-      //setTimeout(() => {canClick = true;} , 25);
     }
   }
   else {
@@ -454,12 +464,12 @@ function aimLabMenu() {
   }
 }
 
-function drawButton(label, x, y, mode) {
+function difficultyChooseAL(label, x, y, mode) {
   if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
     fill(200);
     if (mouseIsPressed) {
       page = mode;
-      score = 0; //entering game: extra click registered -> keeping score one to balance reduction
+      score = 0;
       remaining = 30; 
       circleTimer = 0;
       gameOver = false;
@@ -486,11 +496,6 @@ function drawButton(label, x, y, mode) {
         default:
           return;
       }
-      /*if (['Easy', 'Medium', 'Hard'].includes(mode)) {
-        difficulty = mode;
-        page = 'reaction';
-      
-      }*/
     }
   } else {
     fill(255);
@@ -513,7 +518,7 @@ function aimLab(model) {
     text(model , width / 2, 30);
     
     if (gameOver) {
-      displayGameOver();
+      displayGameOver("aimLabMenu");
       return;
     }
   
@@ -564,50 +569,22 @@ function clickCircle() {
     nextCircle();
   }
 }
-  
-function displayScore() {
-    fill(0);
-    strokeWeight(1);
-    stroke("black");
-    textSize(16);
-    text(`Score: ${score}`, width / 4, 20);
-}
-  
-function displayRemaining() {
-    fill(0);
-    strokeWeight(1);
-    stroke("black");
-    textSize(16);
-    text(`Remaining: ${remaining}`, (3 * width) / 4, 20);
-}
-  
-function displayGameOver() {
-    background(255);
-    textSize(32);
-    fill(0);
-    text('Game Over', width / 2, height / 2 - 30);
-    textSize(24);
-    text(`Final Score: ${score}`, width / 2, height / 2 + 10);
-    text('Press Enter To Continue' , width / 2 , height / 2 + 100);
-    noFill();
-    rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
-    if (keyCode == ENTER && keyIsPressed) {
-      page = "aimLabMenu";
-    }
-}
 
-//PATTERN DRAG CODE
+//PATTERN DRAG CODE -------------------------------------------------------------------------------------------------------------------
 //PATTERN DRAG VARIABLES
 let dots = [];
 let pattern = [];
 let userPattern = [];
 let showPattern = true;
-let timer = 10;
-//let gameOver = false;
-let patternStep = 0;
-score = 0;
+let timer;
+let drawTimer;
+let PDTimer;
+let PDSteps;
+let first = true;
+let patternStep;
+let outcomeColor = "yellow";
 
-//PATTERN DRAG MENU
+//PATTERN DRAG MENU _________________________________________
 function patternDragMenu() {
   background(Bg);
   strokeWeight(1);
@@ -616,9 +593,10 @@ function patternDragMenu() {
   fill(0);
   text('Pattern Drag', width / 2, 50);
 
-  difficultyChoose('Easy', width / 2, 120, "patternDragEasy");
-  difficultyChoose('Medium', width / 2, 180, "patternDragMedium");
-  difficultyChoose('Hard', width / 2, 240, "patternDragHard");
+  clearInterval(drawTimer);
+  difficultyChoosePD('Easy', width / 2, 120, "patternDragEasy");
+  difficultyChoosePD('Medium', width / 2, 180, "patternDragMedium");
+  difficultyChoosePD('Hard', width / 2, 240, "patternDragHard");
   image(backArrow , BAx , BAy, BAlen , BAwid);
   if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
     BAx = 25;
@@ -626,9 +604,7 @@ function patternDragMenu() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
-      //canClick = false;
       page = "Home";
-      //setTimeout(() => {canClick = true;} , 25);
     }
   }
   else {
@@ -639,7 +615,7 @@ function patternDragMenu() {
   }
 }
 
-function difficultyChoose(label, x, y, mode) {
+function difficultyChoosePD(label, x, y, mode) {
     if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
         fill(200);
         if (mouseIsPressed) {
@@ -647,25 +623,30 @@ function difficultyChoose(label, x, y, mode) {
           score = 0;
           remaining = 15; 
           gameOver = false;
+          for (let i = 0; i < 6; i++) {
+            let x = (i % 3) * 100 + 200;
+            let y = floor(i / 3) * 100 + 150;
+            dots.push(createVector(x, y));
+          }
+          drawTimer = setInterval(updateTimer, 1000);
           switch(page) {
             case "patternDragEasy":
               difficulty = "Easy";
-              for (let i = 0; i < 6; i++) {
-                let x = (i % 3) * 100 + 200;
-                let y = floor(i / 3) * 100 + 150;
-                dots.push(createVector(x, y));
-              }
-              generatePattern();
-              setTimeout(() => {
-              showPattern = false; // Show pattern for 3 seconds
-              }, 3000);
-              setInterval(updateTimer, 1000);
+              resetGame(15 , 3);
+              PDTimer = 15;
+              PDSteps = 3;
               break;
             case "patternDragMedium":
               difficulty = "Medium";
+              resetGame(10 , 4);
+              PDTimer = 10;
+              PDSteps = 4;
               break;
             case "patternDragHard":
               difficulty = "Hard";
+              resetGame(7 , 5);
+              PDTimer = 7;
+              PDSteps = 5;              
               break;
             default:
               return;
@@ -681,11 +662,11 @@ function difficultyChoose(label, x, y, mode) {
     text(label, x, y);
 }
 
-//PATTERN DRAG GAME
+//PATTERN DRAG GAME _________________________________________
 
 function patternDrag() {
   strokeWeight(1);
-  background(220);
+  background(Bg);
   drawDots();
   if (remaining == 0) {
     gameOver = true;
@@ -693,21 +674,24 @@ function patternDrag() {
 
   if (showPattern) {
     drawPattern();
-  } else {
+  }
+  else {
     drawUserPattern();
   }
   if (gameOver) {
-    textSize(32);
-    fill(255, 0, 0);
-    text("Game Over!", width / 2 , height / 2);
-  } else if (timer <= 0) {
-    gameOver = true;
+    displayGameOver("patternDragMenu");
   }
   displayScore();
   displayRemaining();
   if (keyCode == ESCAPE && keyIsPressed) {
     page = "patternDragMenu";
   }
+
+  //NOTE
+  textStyle(ITALIC);
+  text('Avoid hovering over uncounted dots in the pattern,\n' + 
+         'as it may connect to them and alter the design.' , width / 2 , height / 2 - 100);
+  textStyle(NORMAL);
 }
 
 function generatePattern() {
@@ -716,8 +700,8 @@ function generatePattern() {
     let currentDot = availableDots[startDotIndex];
     availableDots.splice(startDotIndex, 1); // Remove the used dot
   
-    // Create 3 connected segments
-    for (let i = 0; i < 3; i++) {
+    // Create 'patternStep' connected segments
+    for (let i = 0; i < patternStep; i++) {
       let nextDotIndex = floor(random(0, availableDots.length));
       pattern.push(currentDot); // Add current dot to pattern
       currentDot = availableDots[nextDotIndex]; // Move to the next dot
@@ -739,12 +723,44 @@ function drawDots() {
   }
 }
   
-function drawPattern() {
+function drawPattern(checkedColor = color(153, 235, 255)) {
   stroke(0, 0, 255);
   strokeWeight(4);
+  let blueReduc = 255;
+  let greenIncrem = 0;
+  let xDifference;
+  let yDifference;
+  let angle;
+  let x1;
+  let y1;
+  let x2;
+  let y2;
   for (let i = 0; i < pattern.length - 1; i++) {
-    line(dots[pattern[i]].x, dots[pattern[i]].y, 
-         dots[pattern[i + 1]].x, dots[pattern[i + 1]].y);
+    xDifference = (dots[pattern[i + 1]].x - dots[pattern[i]].x);
+    yDifference = (dots[pattern[i + 1]].y - dots[pattern[i]].y);
+    angle = atan2(yDifference , xDifference);
+    x1 = dots[pattern[i]].x + 12 * cos(angle);
+    y1 = dots[pattern[i]].y + 12 * sin(angle);
+    x2 = dots[pattern[i + 1]].x - 10 * cos(angle);
+    y2 = dots[pattern[i + 1]].y - 10 * sin(angle);
+    line(x1 , y1 , x2 , y2);
+    stroke("White");
+    strokeWeight(1);
+    fill("white");
+    text(i + 1 , dots[pattern[i + 1]].x , dots[pattern[i + 1]].y);
+    fill(checkedColor);
+
+    let arrowX1 = x2 - 20 * cos(angle + PI / 6);
+    let arrowY1 = y2 - 20 * sin(angle + PI / 6);
+    let arrowX2 = x2 - 20 * cos(angle - PI / 6);
+    let arrowY2 = y2 - 20 * sin(angle - PI / 6);
+    stroke("white");
+    strokeWeight(1);
+    triangle(arrowX1 , arrowY1 , arrowX2 , arrowY2 , x2 , y2);
+    strokeWeight(4);
+    blueReduc -= (255 / PDSteps);
+    greenIncrem += (255 / PDSteps);
+    stroke(0, greenIncrem, blueReduc);
   }
 }
   
@@ -753,7 +769,7 @@ function patternDragMousePressed() {
     userPattern = [];
   }
 }
-  
+ 
 function mouseDragged() {
   if (!gameOver && !showPattern) {
     let closestDot = findClosestDot(mouseX, mouseY);
@@ -783,6 +799,7 @@ function findClosestDot(x, y) {
 }
   
 function checkUserPattern() {
+  let interval;
   showPattern = false;
   let correct = true;
   if (userPattern.length === pattern.length) {
@@ -790,26 +807,49 @@ function checkUserPattern() {
       if (userPattern[i] !== pattern[i]) {
         score--;
         correct = false;
+        outcomeColor = color(255 , 0 , 0);
         break;
       }
     }
     if (correct) {
+      outcomeColor = color(0 , 255 , 0);
       score++;
-      //alert("You win!");
     }
-  } else {
+  } 
+  else {
     score--;
-    //gameOver = true;
+    outcomeColor = color(255 , 0 , 0);
   }
-  resetGame();
+  setTimeout(() => {
+    resetGame(PDTimer , PDSteps);
+    outcomeColor = "yellow";
+  }, 1000);
 }
   
 function drawUserPattern() {
-  stroke(255, 0, 0);
+  stroke(0, 0, 255);
   strokeWeight(4);
+  let blueReduc = 255;
+  let greenIncrem = 0;
   for (let i = 0; i < userPattern.length - 1; i++) {
     line(dots[userPattern[i]].x, dots[userPattern[i]].y, 
          dots[userPattern[i + 1]].x, dots[userPattern[i + 1]].y);
+    let xDifference = (dots[userPattern[i + 1]].x - dots[userPattern[i]].x);
+    let yDifference = (dots[userPattern[i + 1]].y - dots[userPattern[i]].y);
+    let angle = atan2(yDifference , xDifference);
+    let arrowX1 = dots[userPattern[i + 1]].x - 20 * cos(angle + PI / 6);
+    let arrowY1 = dots[userPattern[i + 1]].y - 20 * sin(angle + PI / 6);
+    let arrowX2 = dots[userPattern[i + 1]].x - 20 * cos(angle - PI / 6);
+    let arrowY2 = dots[userPattern[i + 1]].y - 20 * sin(angle - PI / 6);
+    stroke("white");
+    fill(outcomeColor);
+    strokeWeight(1);
+    triangle(arrowX1 , arrowY1 , arrowX2 , arrowY2 , dots[userPattern[i + 1]].x , dots[userPattern[i + 1]].y);
+    strokeWeight(4);
+    fill(255,0,0);
+    blueReduc -= (255 / PDSteps);
+    greenIncrem += (255 / PDSteps);
+    stroke(0, greenIncrem, blueReduc);
   }
 }
   
@@ -818,24 +858,93 @@ function updateTimer() {
     timer--;
   }
   if (timer <= 0) {
-    gameOver = true;
+    resetGame(PDTimer , PDSteps);
   }
 }
   
 function keyPressed() {
-  if (key === 'r') {
-    resetGame();
+  if (key === 'r' && ["PatternDragEasy" , "PatternDragMedium" , "PatternDragEasy"].includes(difficulty)) {
+    resetGame(PDTimer , PDSteps);
   }
 }
   
-function resetGame() {
+function resetGame(PDTimer , PDSteps) {
   pattern = [];
   userPattern = [];
   showPattern = true;
   gameOver = false;
-  timer = 10;
+  timer = PDTimer;
+  patternStep = PDSteps;
   generatePattern();
   setTimeout(() => {
+    first = true;
     showPattern = false; // Show pattern for 3 seconds
   }, 3000);
 }
+
+//COLOR CLICKER CODE ------------------------------------------------------------------------------------------------------------------
+//COLOR CLICKER VARIABLES
+
+//COLOR CLICKER MENU ________________________________________
+function colorClickerMenu() {
+  background(Bg);
+  strokeWeight(1);
+  textSize(32);
+  textAlign(CENTER , CENTER);
+  fill(0);
+  text('Color Clicker', width / 2, 50);
+
+  difficultyChooseCC('Easy', width / 2, 120, "colorClickerEasy");
+  difficultyChooseCC('Medium', width / 2, 180, "colorClickerMedium");
+  difficultyChooseCC('Hard', width / 2, 240, "colorClickerHard");
+  image(backArrow , BAx , BAy, BAlen , BAwid);
+  if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
+    BAx = 25;
+    BAy = 255;
+    BAlen = 80;
+    BAwid = 80;
+    if (mouseIsPressed) {
+      page = "Home";
+    }
+  }
+  else {
+    BAx = 30;
+    BAy = 260;
+    BAlen = 70;
+    BAwid = 70;
+  }
+}
+
+function difficultyChooseCC(label, x, y, mode) {
+    if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
+        fill(200);
+        if (mouseIsPressed) {
+          page = mode;
+          score = 0;
+          remaining = 15; 
+          gameOver = false;
+          switch(page) {
+            case "colorClickerEasy":
+              difficulty = "Easy";
+              break;
+            case "colorClickerMedium":
+              difficulty = "Medium";
+              break;
+            case "colorClickerHard":
+              difficulty = "Hard";
+              break;
+            default:
+              return;
+          }
+        }
+    } else {
+        fill(255);
+      }
+    stroke(0);
+    rect(x - 100, y - 20, 200, 40 , 5 , 5 , 5 , 5);
+    fill(0);
+    textSize(20);
+    text(label, x, y);
+}
+
+//COLOR CLICKER GAME ________________________________________
