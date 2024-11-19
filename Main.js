@@ -387,6 +387,9 @@ function adjustBrightness(factor) {
 //EXERCISES ___________________________________________________________________________________________________________________________
 //Common Variables
 let score = 0;
+let gameOver;
+let remaining;
+let difficulty;
 
 //Common Functions
 function displayScore() {
@@ -424,13 +427,10 @@ function displayGameOver(gameMode) {
 
 //AIM LAB CODE ------------------------------------------------------------------------------------------------------------------------
 //GAME VARIABLES
-let circleClick;
-let remaining; 
+let circleClick; 
 let circleTimer;
-let timeBetweenCircles; 
-let gameOver;
+let timeBetweenCircles;
 let circleSize;
-let difficulty;
 
 //AIM LAB MENU ______________________________________________
 
