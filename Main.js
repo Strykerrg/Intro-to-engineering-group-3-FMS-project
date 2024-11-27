@@ -7,12 +7,19 @@ let volbar = 395;
 let volume;
 let volbarTarget = 395;
 //BRIGHTNESS BAR VAR
-let brightnessBar = 395;
+let brightnessBar = 390;
 let Brightness = 1;
-let brightnessBarTaget = 395;
+let brightnessBarTaget = 390;
+//MUSIC SWITCH
+let music;
+let musicCircle = 300;
+let musicTarget = 300;
+let musicSwitchColor;
+let musicSwitchColorTarget;
 
 //IMG
 let Bg;
+let VidBg
 let img1;
 let img2;
 let img3;
@@ -20,6 +27,13 @@ let aimLabImg;
 let patternDragImg;
 let colorClickerImg;
 let backArrow;
+
+//Sound Effects
+let clickSound;
+let gameSound;
+
+//MUSIC OBJECT CONTAINER
+let audio = [];
 
 //BG MUSIC
 //let bgMusic;
@@ -63,29 +77,50 @@ let BAwid = 70;
 
 function setup() {
   createCanvas(640, 360);
+
+  //Background
+  VidBg = createVideo('Files/backgroundVideo.mp4', videoLoad);
+  VidBg.hide();
+  VidBg.hideControls();
+  VidBg.elt.muted = true;
+
+  musicSwitchColor = color("#ff1b2d");
+  musicSwitchColorTarget = color("#ff1b2d");
 }
 
 function preload() {
-  img1 = loadImage("images/gearIcon.png");
-  img2 = loadImage("images/helpIcon.png");
-  img3 = loadImage("images/exitIcon.png");
-  aimLabImg = loadImage("images/aimLabIcon.png");
-  patternDragImg = loadImage("images/patternDragIcon.png");
-  colorClickerImg = loadImage("images/colorClickerIcon.png");
-  Bg = loadImage("images/BG.jpg");
-  //bgMusic = loadSound("images/Bgmusic.mp3");
-  backArrow  = loadImage("images/backArrow.png");
+  img1 = loadImage("Files/gearIcon.png");
+  img2 = loadImage("Files/helpIcon.png");
+  img3 = loadImage("Files/exitIcon.png");
+  aimLabImg = loadImage("Files/aimLabIcon.png");
+  patternDragImg = loadImage("Files/patternDragIcon.png");
+  colorClickerImg = loadImage("Files/colorClickerIcon.png");
+  clickSound = loadSound("Files/clickSound.mp3");
+  gameSound = loadSound("Files/gameSound.mp3");
+  audio.push(clickSound);
+  audio.push(gameSound);
+  //bgMusic = loadSound("Files/Bgmusic.mp3");
+  backArrow  = loadImage("Files/backArrow.png");
+}
+
+function videoLoad() {
+  VidBg.loop();
+  VidBg.volume(0);
 }
 
 function gameName() {
+  textAlign(LEFT , LEFT);
   textSize(30);
-  fill("purple");
-  stroke("purple");
+  fill("#003366");
+  stroke("#003366");
   strokeWeight(1);
   text("Reflex Arcade" , 240 , 40);
 }
 
-function draw() {  
+function draw() { 
+  //Background
+  image(VidBg , 0 , 0 , width , height);
+  
   //Mouse Trail
   stroke("black");
   strokeWeight(3);
@@ -136,8 +171,6 @@ function draw() {
 }
 
 function homePage() {
-  //Basic Background elements
-  background(Bg);
   textAlign(LEFT , LEFT);
     
   //text alt
@@ -168,17 +201,41 @@ function homePage() {
 }
 
 function settingsPage() {
-  //Basic Background elements
-  background(Bg);
-  textAlign(LEFT , LEFT);
+  textAlign(RIGHT , CENTER);
+
+  //sound on/off
+  fill("black");
+  stroke("black");
+  strokeWeight(1);
+  text("Music:" , 230 , 130)
+
+  musicSwitchColor = lerpColor(musicSwitchColor , musicSwitchColorTarget , 0.2);
+  fill(musicSwitchColor);
+  strokeWeight(4);
+  stroke("Black")
+  rect(290 , 120 , 60 , 20 , 10);
+
+  fill("Black");
+  stroke("Black");
+  strokeWeight(1);
+  musicCircle = lerp(musicCircle , musicTarget , 0.2);
+  music = map(musicCircle , 300 , 340 , 0 , 2) > 1;
+  circle(musicCircle , 130 , 20);
+  if (music && !gameSound.isPlaying()) {
+    gameSound.loop();
+  }
+  else if (!music) {
+    gameSound.stop();
+  }
+  
   
   //Volume Bar
   fill("black");
   stroke("black");
   strokeWeight(1);
-  text("Volume:" , 120 , 173);
+  text("Volume:" , 230 , 165);
   
-  noFill();
+  fill("#e7bb92");
   strokeWeight(4);
   stroke("Black");
   rect(240 , 160 , 160 , 10 , 5);
@@ -188,15 +245,17 @@ function settingsPage() {
   volbar = lerp(volbar , volbarTarget , 0.2);
   volume = map(volbar , 245 , 395 , 0 , 1);
   circle(volbar , 165 , 20);
-  //bgMusic.setVolume(volume);
+  for (let i of audio) {
+    i.setVolume(volume);
+  }
   
   //Brightness
   fill("black");
   stroke("black");
   strokeWeight(1);
-  text("Brightness:" , 79 , 213);
+  text("Brightness:" , 230 , 205);
   
-  noFill();
+  fill("#e7bb92");
   strokeWeight(4);
   stroke("Black");
   rect(240 , 200 , 160 , 10 , 5);
@@ -234,6 +293,17 @@ function mousePressed() { //this function starts as soon as mouse is pressed
   if ((page == "Settings") && ((mouseX > 240 && mouseX < 400) && (mouseY > 195 && mouseY < 215))) {
     brightnessBarTaget = mouseX;
   }
+  //MUSIC SWITCH
+  if ((page == "Settings") && (mouseX > 290 && mouseX < 350) && (mouseY > 120 && mouseY < 140)) {
+    if (mouseX > 320) {
+      musicTarget = 340;
+      musicSwitchColorTarget = color("#1ed760");
+    } 
+    else {
+      musicTarget = 300;
+      musicSwitchColorTarget = color("#ff1b2d");
+    }
+  }
   //Mouse Press Aim Lab
   if (page == "aimLabEasy" || page == "aimLabMedium" || page == "aimLabHard") {
     clickCircle();
@@ -251,14 +321,17 @@ function mousePressed() { //this function starts as soon as mouse is pressed
 function mouseClicked() { //this function starts when mouse is released
   //AIM LAB ICON
   if (page == "Home" && ((mouseX > 105 && mouseX < 185) && (mouseY > 215 && mouseY < 295))) {
+    clickSound.play();
     page = "aimLabMenu";
   }
   //PATTERN DRAG ICON
   if (page == "Home" && (mouseX > 285 && mouseX < 365) && (mouseY > 215 && mouseY < 295)) {
+    clickSound.play();
     page = "patternDragMenu";
   }
   //COLOR CLICKER ICON
   if (page == "Home" && (mouseX > 465 && mouseX < 545) && (mouseY > 215 && mouseY < 295)) {
+    clickSound.play();
     page = "colorClickerMenu";
   }
 }
@@ -297,6 +370,7 @@ function settingsHover() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
+      clickSound.play();
       page = "Home";
     }
   }
@@ -355,6 +429,7 @@ function homeHover() {
     STlen = 110;
     STwid = 110;
     if (mouseIsPressed) {
+      clickSound.play();
       page = "Settings";
     }
   }
@@ -416,7 +491,6 @@ function displayRemaining() {
 }
 
 function displayGameOver(gameMode) {
-  background(Bg);
   textSize(32);
   stroke("black");
   strokeWeight(1);
@@ -457,12 +531,11 @@ let circleSize;
 //AIM LAB MENU ______________________________________________
 
 function aimLabMenu() {
-  background(Bg);
   strokeWeight(1);
   textSize(32);
   textAlign(CENTER , CENTER);
   fill(0);
-  text('Reaction + Hand-eye Coordination Trainer', width / 2, 50);
+  text('Aim Lab', width / 2, 50);
 
   difficultyChooseAL('Easy', width / 2, 120, "aimLabEasy");
   difficultyChooseAL('Medium', width / 2, 180, "aimLabMedium");
@@ -474,6 +547,7 @@ function aimLabMenu() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
+      clickSound.play();
       page = "Home";
     }
   }
@@ -487,8 +561,9 @@ function aimLabMenu() {
 
 function difficultyChooseAL(label, x, y, mode) {
   if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
-    fill(200);
+    fill("#F88379");
     if (mouseIsPressed) {
+      clickSound.play();
       page = mode;
       score = 0;
       remaining = 30; 
@@ -520,7 +595,7 @@ function difficultyChooseAL(label, x, y, mode) {
       }
     }
   } else {
-    fill(255);
+    fill("#E0F2F7");
   }
   stroke(0);
   rect(x - 100, y - 20, 200, 40 , 5 , 5 , 5 , 5);
@@ -532,7 +607,6 @@ function difficultyChooseAL(label, x, y, mode) {
 //AIM LAB GAME ______________________________________________
 
 function aimLab(model) {
-    background(Bg);
     strokeWeight(1);
     
     textSize(24);
@@ -541,7 +615,7 @@ function aimLab(model) {
     
     if (gameOver) {
       page = "gameOver";
-      mode = "AimLabMenu";
+      mode = "aimLabMenu";
       return;
     }
   
@@ -609,7 +683,6 @@ let outcomeColor = "yellow";
 
 //PATTERN DRAG MENU _________________________________________
 function patternDragMenu() {
-  background(Bg);
   strokeWeight(1);
   textSize(32);
   textAlign(CENTER , CENTER);
@@ -627,6 +700,7 @@ function patternDragMenu() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
+      clickSound.play();
       page = "Home";
     }
   }
@@ -640,8 +714,9 @@ function patternDragMenu() {
 
 function difficultyChoosePD(label, x, y, mode) {
     if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
-        fill(200);
+        fill("#F88379");
         if (mouseIsPressed) {
+          clickSound.play();
           page = mode;
           score = 0;
           remaining = 15; 
@@ -677,7 +752,7 @@ function difficultyChoosePD(label, x, y, mode) {
           }
         }
     } else {
-        fill(255);
+        fill("#E0F2F7");
       }
     stroke(0);
     rect(x - 100, y - 20, 200, 40 , 5 , 5 , 5 , 5);
@@ -690,7 +765,6 @@ function difficultyChoosePD(label, x, y, mode) {
 
 function patternDrag() {
   strokeWeight(1);
-  background(Bg);
   drawDots();
   if (remaining == 0) {
     gameOver = true;
@@ -797,7 +871,7 @@ function patternDragMousePressed() {
 }
  
 function mouseDragged() {
-  if (!gameOver && !showPattern) {
+  if (!gameOver && !showPattern && userPattern.length < pattern.length) {
     let closestDot = findClosestDot(mouseX, mouseY);
     if (closestDot !== -1 && !userPattern.includes(closestDot)) {
       userPattern.push(closestDot);
@@ -933,7 +1007,6 @@ let colors;
 
 //COLOR CLICKER MENU ________________________________________
 function colorClickerMenu() {
-  background(Bg);
   strokeWeight(1);
   textSize(32);
   textAlign(CENTER , CENTER);
@@ -955,6 +1028,7 @@ function colorClickerMenu() {
     BAlen = 80;
     BAwid = 80;
     if (mouseIsPressed) {
+      clickSound.play();
       page = "Home";
     }
   }
@@ -968,8 +1042,9 @@ function colorClickerMenu() {
 
 function difficultyChooseCC(label, x, y, mode) {
     if (mouseX > x - 100 && mouseX < x + 100 && mouseY > y - 20 && mouseY < y + 20) {
-        fill(200);
+        fill("#F88379");
         if (mouseIsPressed) {
+          clickSound.play();
           page = mode;
           score = 0; 
           gameOver = false;
@@ -1033,7 +1108,7 @@ function difficultyChooseCC(label, x, y, mode) {
           }
         }
     } else {
-        fill(255);
+        fill("#E0F2F7");
       }
     stroke(0);
     rect(x - 100, y - 20, 200, 40 , 5 , 5 , 5 , 5);
@@ -1045,7 +1120,6 @@ function difficultyChooseCC(label, x, y, mode) {
 //COLOR CLICKER GAME ________________________________________
 
 function colorClicker() {
-  background(Bg);
 
   if (gameOver) {
     page = "gameOver";
