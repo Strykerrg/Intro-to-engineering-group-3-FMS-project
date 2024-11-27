@@ -5,9 +5,11 @@ let trailMax = 10;
 //VOLUME BAR VAR
 let volbar = 395;
 let volume;
+let volbarTarget = 395;
 //BRIGHTNESS BAR VAR
 let brightnessBar = 395;
 let Brightness = 1;
+let brightnessBarTaget = 395;
 
 //IMG
 let Bg;
@@ -95,14 +97,14 @@ function draw() {
   else if (page == "Settings") {
     settingsPage();
   }
+  else if (page == "gameOver") {
+    displayGameOver(mode);
+  }
   else if (page == "aimLabMenu") {
     aimLabMenu();
   }
   else if (page == "aimLabEasy" ||page == "aimLabMedium" ||page == "aimLabHard") {
     aimLab(difficulty);
-  }
-  else if (page === "reaction") {
-    showReactionGame();
   }
   else if (page == "patternDragMenu") {
     patternDragMenu();
@@ -112,6 +114,9 @@ function draw() {
   }
   else if (page == "colorClickerMenu") {
     colorClickerMenu();
+  }
+  else if (page == "colorClickerEasy" ||page == "colorClickerMedium" ||page == "colorClickerHard") {
+    colorClicker();
   }
 
   //TRAIL
@@ -126,12 +131,6 @@ function draw() {
     let pos = trail[i];
     circle(pos.x , pos.y , map(i , 0 , trail.length , 5 , 20));
   }
-
-  //Boarder
-  stroke("gold");
-  strokeWeight(5);
-  noFill();
-  rect(0 , 0 , 640 , 360);
 
   adjustBrightness(Brightness);
 }
@@ -186,6 +185,7 @@ function settingsPage() {
   
   fill("black");
   stroke("black");
+  volbar = lerp(volbar , volbarTarget , 0.2);
   volume = map(volbar , 245 , 395 , 0 , 1);
   circle(volbar , 165 , 20);
   //bgMusic.setVolume(volume);
@@ -203,6 +203,7 @@ function settingsPage() {
   
   fill("black");
   stroke("black");
+  brightnessBar = lerp(brightnessBar , brightnessBarTaget , 0.2);
   Brightness = map(brightnessBar , 245 , 395 , 0 , 1);
   circle(brightnessBar , 205 , 20);
   
@@ -221,7 +222,7 @@ function settingsPage() {
 function mousePressed() { //this function starts as soon as mouse is pressed
   //VOL ADJUST
   if ((page == "Settings") && (mouseX > 240 && mouseX < 400) && (mouseY > 155 && mouseY < 175)) {
-    volbar = mouseX;
+    volbarTarget = mouseX;
   }
   //EXIT EXECUTION
   if (((page == "Home") || (page == "Settings")) && (mouseX > 535 && mouseX <615) && (mouseY > 31 && mouseY < 111)) {
@@ -231,15 +232,19 @@ function mousePressed() { //this function starts as soon as mouse is pressed
   }
   //BRIGHTNESS ADJUST
   if ((page == "Settings") && ((mouseX > 240 && mouseX < 400) && (mouseY > 195 && mouseY < 215))) {
-    brightnessBar = mouseX;
+    brightnessBarTaget = mouseX;
   }
   //Mouse Press Aim Lab
   if (page == "aimLabEasy" || page == "aimLabMedium" || page == "aimLabHard") {
     clickCircle();
   }
-  //mouse Press Pattern Drag
+  //Mouse Press Pattern Drag
   if (page == "patternDragEasy" || page == "patternDragMedium" || page == "patternDragHard") {
     patternDragMousePressed();
+  }
+  //Mouse Press Color Clicker
+  if (page == "colorClickerEasy" || page == "colorClickerMedium" || page == "colorClickerHard") {
+    colorClickerMousePressed();
   }
 }
 
@@ -387,9 +392,11 @@ function adjustBrightness(factor) {
 //EXERCISES ___________________________________________________________________________________________________________________________
 //Common Variables
 let score = 0;
-let gameOver;
+let gameOver = false;
 let remaining;
 let difficulty;
+let mode;
+let maxScore;
 
 //Common Functions
 function displayScore() {
@@ -414,20 +421,35 @@ function displayGameOver(gameMode) {
   stroke("black");
   strokeWeight(1);
   fill(0);
+  textStyle(ITALIC);
+  if (score == maxScore) {
+    text('Perfect Score!!!' , width / 2 , height / 6);
+  }
+  else if (score >= maxScore - 5) {
+    text('Almost Got it! Keep Trying!!' , width / 2 , height / 6);
+  }
+  else if (score != 0) {
+    text('Keep practicing—you\'ve got this!!', width / 2 , height / 6);
+  }
+  else {
+    text('Don\'t give up! Try again!', width / 2 , height / 6);
+  }
+  textStyle(NORMAL);
+
   text('Game Over', width / 2, height / 2 - 30);
   textSize(24);
   text(`Final Score: ${score}`, width / 2, height / 2 + 10);
   text('Press Enter To Continue' , width / 2 , height / 2 + 100);
   noFill();
   rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
-  if (keyCode == ENTER && keyIsPressed) {
+  if (keyIsDown(ENTER)) {
     page = gameMode;
   }
 }
 
 //AIM LAB CODE ------------------------------------------------------------------------------------------------------------------------
 //GAME VARIABLES
-let circleClick; 
+let circleClick;
 let circleTimer;
 let timeBetweenCircles;
 let circleSize;
@@ -436,7 +458,6 @@ let circleSize;
 
 function aimLabMenu() {
   background(Bg);
-  adjustBrightness(Brightness);
   strokeWeight(1);
   textSize(32);
   textAlign(CENTER , CENTER);
@@ -473,6 +494,7 @@ function difficultyChooseAL(label, x, y, mode) {
       remaining = 30; 
       circleTimer = 0;
       gameOver = false;
+      maxScore = 30;
       switch(page) {
         case "aimLabEasy":
           timeBetweenCircles = 2000;
@@ -518,7 +540,8 @@ function aimLab(model) {
     text(model , width / 2, 30);
     
     if (gameOver) {
-      displayGameOver("aimLabMenu");
+      page = "gameOver";
+      mode = "AimLabMenu";
       return;
     }
   
@@ -623,6 +646,7 @@ function difficultyChoosePD(label, x, y, mode) {
           score = 0;
           remaining = 15; 
           gameOver = false;
+          maxScore = 15;
           for (let i = 0; i < 6; i++) {
             let x = (i % 3) * 100 + 200;
             let y = floor(i / 3) * 100 + 150;
@@ -679,7 +703,9 @@ function patternDrag() {
     drawUserPattern();
   }
   if (gameOver) {
-    displayGameOver("patternDragMenu");
+    page = "gameOver";
+    mode = "patternDragMenu";
+    return;
   }
   displayScore();
   displayRemaining();
@@ -723,7 +749,7 @@ function drawDots() {
   }
 }
   
-function drawPattern(checkedColor = color(153, 235, 255)) {
+function drawPattern() {
   stroke(0, 0, 255);
   strokeWeight(4);
   let blueReduc = 255;
@@ -748,7 +774,7 @@ function drawPattern(checkedColor = color(153, 235, 255)) {
     strokeWeight(1);
     fill("white");
     text(i + 1 , dots[pattern[i + 1]].x , dots[pattern[i + 1]].y);
-    fill(checkedColor);
+    fill(153, 235, 255);
 
     let arrowX1 = x2 - 20 * cos(angle + PI / 6);
     let arrowY1 = y2 - 20 * sin(angle + PI / 6);
@@ -831,20 +857,35 @@ function drawUserPattern() {
   strokeWeight(4);
   let blueReduc = 255;
   let greenIncrem = 0;
+  let xDifference;
+  let yDifference;
+  let angle;
+  let x1;
+  let y1;
+  let x2;
+  let y2;
   for (let i = 0; i < userPattern.length - 1; i++) {
-    line(dots[userPattern[i]].x, dots[userPattern[i]].y, 
-         dots[userPattern[i + 1]].x, dots[userPattern[i + 1]].y);
-    let xDifference = (dots[userPattern[i + 1]].x - dots[userPattern[i]].x);
-    let yDifference = (dots[userPattern[i + 1]].y - dots[userPattern[i]].y);
-    let angle = atan2(yDifference , xDifference);
-    let arrowX1 = dots[userPattern[i + 1]].x - 20 * cos(angle + PI / 6);
-    let arrowY1 = dots[userPattern[i + 1]].y - 20 * sin(angle + PI / 6);
-    let arrowX2 = dots[userPattern[i + 1]].x - 20 * cos(angle - PI / 6);
-    let arrowY2 = dots[userPattern[i + 1]].y - 20 * sin(angle - PI / 6);
+    xDifference = (dots[userPattern[i + 1]].x - dots[userPattern[i]].x);
+    yDifference = (dots[userPattern[i + 1]].y - dots[userPattern[i]].y);
+    angle = atan2(yDifference , xDifference);
+    x1 = dots[userPattern[i]].x + 12 * cos(angle);
+    y1 = dots[userPattern[i]].y + 12 * sin(angle);
+    x2 = dots[userPattern[i + 1]].x - 10 * cos(angle);
+    y2 = dots[userPattern[i + 1]].y - 10 * sin(angle);
+    line(x1 , y1 , x2 , y2);
+    stroke("White");
+    strokeWeight(1);
+    fill("white");
+    text(i + 1 , dots[pattern[i + 1]].x , dots[pattern[i + 1]].y);
+
+    let arrowX1 = x2 - 20 * cos(angle + PI / 6);
+    let arrowY1 = y2 - 20 * sin(angle + PI / 6);
+    let arrowX2 = x2 - 20 * cos(angle - PI / 6);
+    let arrowY2 = y2 - 20 * sin(angle - PI / 6);
     stroke("white");
     fill(outcomeColor);
     strokeWeight(1);
-    triangle(arrowX1 , arrowY1 , arrowX2 , arrowY2 , dots[userPattern[i + 1]].x , dots[userPattern[i + 1]].y);
+    triangle(arrowX1 , arrowY1 , arrowX2 , arrowY2 , x2 , y2);
     strokeWeight(4);
     fill(255,0,0);
     blueReduc -= (255 / PDSteps);
@@ -884,6 +925,11 @@ function resetGame(PDTimer , PDSteps) {
 
 //COLOR CLICKER CODE ------------------------------------------------------------------------------------------------------------------
 //COLOR CLICKER VARIABLES
+let circles = [];
+let circleDiameter;
+let numCircles;
+let targetColor;
+let colors;
 
 //COLOR CLICKER MENU ________________________________________
 function colorClickerMenu() {
@@ -893,6 +939,11 @@ function colorClickerMenu() {
   textAlign(CENTER , CENTER);
   fill(0);
   text('Color Clicker', width / 2, 50);
+
+  //instructions
+  textSize(16);
+  fill(0);
+  text('Click on the circles of the target color!', width / 2, height - 10);
 
   difficultyChooseCC('Easy', width / 2, 120, "colorClickerEasy");
   difficultyChooseCC('Medium', width / 2, 180, "colorClickerMedium");
@@ -920,20 +971,64 @@ function difficultyChooseCC(label, x, y, mode) {
         fill(200);
         if (mouseIsPressed) {
           page = mode;
-          score = 0;
-          remaining = 15; 
+          score = 0; 
           gameOver = false;
+          remaining = 0;
+          circles = [];
           switch(page) {
             case "colorClickerEasy":
               difficulty = "Easy";
+              colors = ['red', 'blue'];
+              targetColor = random(colors);
+              numCircles = 30;
+              circleDiameter = 40;
+
+              for (let i = 0; i < numCircles; i++) {
+                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
+                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
+                let color = random(colors);
+                if (color === targetColor) {
+                  remaining++;
+                }
+                circles.push({ x, y, color, clicked: false });
+              }
               break;
             case "colorClickerMedium":
               difficulty = "Medium";
+              colors = ['red', 'blue' , 'green'];
+              targetColor = random(colors);
+              numCircles = 45;
+              circleDiameter = 30;
+
+              for (let i = 0; i < numCircles; i++) {
+                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
+                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
+                let color = random(colors);
+                if (color === targetColor) {
+                  remaining++;
+                }
+                circles.push({ x, y, color, clicked: false });
+              }
               break;
             case "colorClickerHard":
               difficulty = "Hard";
+              colors = ['red', 'blue' , 'green' , 'yellow'];
+              targetColor = random(colors);
+              numCircles = 60;
+              circleDiameter = 20;
+
+              for (let i = 0; i < numCircles; i++) {
+                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
+                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
+                let color = random(colors);
+                if (color === targetColor) {
+                  remaining++;
+                }
+                circles.push({ x, y, color, clicked: false });
+              }
               break;
             default:
+              maxScore = remaining
               return;
           }
         }
@@ -948,3 +1043,68 @@ function difficultyChooseCC(label, x, y, mode) {
 }
 
 //COLOR CLICKER GAME ________________________________________
+
+function colorClicker() {
+  background(Bg);
+
+  if (gameOver) {
+    page = "gameOver";
+    mode = "colorClickerMenu";
+    return;
+  }
+
+  // Draw all circles (only those that are not clicked)
+  for (let i = 0; i < circles.length; i++) {
+    if (!circles[i].clicked) {
+      fill(circles[i].color);
+      noStroke();
+      ellipse(circles[i].x, circles[i].y, circleDiameter, circleDiameter);
+    }
+  }
+
+  // Display the target color
+  textSize(24);
+  fill(0);
+  text(`Target: ${targetColor}`, width / 2, 30);
+
+  // Check if all circles of the target color have been clicked
+  if (allTargetCirclesClicked()) {
+    gameOver = true;  // End the game if all target color circles are clicked
+  }
+
+  displayScore();
+  displayRemaining();
+}
+
+function colorClickerMousePressed() {
+  if (gameOver) {return;}
+  let blankSpaceClicked = true;
+  // Check if the clicked position is inside a circle and the circle's color matches the target
+  for (let i = 0; i < circles.length; i++) {
+    if (circles[i].clicked) {continue;}  // Skip already clicked circles
+
+    let d = dist(mouseX, mouseY, circles[i].x, circles[i].y);
+    if (d < circleDiameter / 2) {  // 20 is half the diameter of the circle
+      if (circles[i].color === targetColor) {
+        score++; // Correct color clicked
+        remaining--;
+        blankSpaceClicked = false;
+        circles[i].clicked = true; // Mark this circle as clicked
+      } else {
+        score--; // Incorrect color clicked
+        blankSpaceClicked = false;
+      }
+    }
+  }
+  if (blankSpaceClicked) {score--;}
+}
+
+function allTargetCirclesClicked() {
+  // Check if all circles of the target color have been clicked
+  for (let i = 0; i < circles.length; i++) {
+    if (circles[i].color === targetColor && !circles[i].clicked) {
+      return false;  // If any target color circle is not clicked, return false
+    }
+  }
+  return true;  // All target color circles have been clicked
+}
