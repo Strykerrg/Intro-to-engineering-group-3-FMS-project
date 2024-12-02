@@ -1,7 +1,7 @@
 let page = "Home";
 //TRAIL VAR
 let trail = [];
-let trailMax = 10;
+let trailMax = 5;
 //VOLUME BAR VAR
 let volbar = 395;
 let volume;
@@ -16,6 +16,9 @@ let musicCircle = 300;
 let musicTarget = 300;
 let musicSwitchColor;
 let musicSwitchColorTarget;
+
+//Life Icon
+let lifeIcon;
 
 //IMG
 let Bg;
@@ -99,8 +102,8 @@ function preload() {
   gameSound = loadSound("Files/gameSound.mp3");
   audio.push(clickSound);
   audio.push(gameSound);
-  //bgMusic = loadSound("Files/Bgmusic.mp3");
   backArrow  = loadImage("Files/backArrow.png");
+  lifeIcon = loadImage("Files/health.png"); //Image by FreePik
 }
 
 function videoLoad() {
@@ -502,20 +505,25 @@ function displayGameOver(gameMode) {
   else if (score >= maxScore - 5) {
     text('Almost Got it! Keep Trying!!' , width / 2 , height / 6);
   }
-  else if (score != 0) {
+  else if (score > 0) {
     text('Keep practicing—you\'ve got this!!', width / 2 , height / 6);
   }
   else {
     text('Don\'t give up! Try again!', width / 2 , height / 6);
   }
-  textStyle(NORMAL);
+  fill("#FD7E14");
+  rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
 
+  textStyle(NORMAL);
+  fill(0);
   text('Game Over', width / 2, height / 2 - 30);
   textSize(24);
   text(`Final Score: ${score}`, width / 2, height / 2 + 10);
   text('Press Enter To Continue' , width / 2 , height / 2 + 100);
-  noFill();
-  rect(width / 2 - 150 , height / 2 + 75 , 300 , 50 , 5 , 5 , 5 , 5);
+  let Press_width = textWidth("Press ");
+  strokeWeight(3);
+  stroke(255 , 0 , 0);
+  line(width / 2 - Press_width - 3 , height / 2 + 113 , width / 2 - Press_width - 3 + textWidth("Enter") , height / 2 + 113);
   if (keyIsDown(ENTER)) {
     page = gameMode;
   }
@@ -536,6 +544,14 @@ function aimLabMenu() {
   textAlign(CENTER , CENTER);
   fill(0);
   text('Aim Lab', width / 2, 50);
+
+  //instructions
+  textSize(20);
+
+  textFont('Montserrat');
+  fill("#5762f5");
+  stroke("#0B6623");
+  text('Click on the circles before the time runs out!', width / 2, height - 10);
 
   difficultyChooseAL('Easy', width / 2, 120, "aimLabEasy");
   difficultyChooseAL('Medium', width / 2, 180, "aimLabMedium");
@@ -629,6 +645,11 @@ function aimLab(model) {
     }
   
     drawCircle();
+
+    fill("#EAF8F1");
+    rect (5 , 5 , 100 , 30 , 5 , 5);
+    fill("Black");
+    text('ESC to Exit' , 55 , 20,);
     if (keyCode == ESCAPE && keyIsPressed) {
       page = "aimLabMenu";
     }
@@ -690,6 +711,16 @@ function patternDragMenu() {
   text('Pattern Drag', width / 2, 50);
 
   clearInterval(drawTimer);
+
+  //instructions
+  textSize(20);
+
+  textFont('Montserrat');
+  fill("#5762f5");
+  stroke("#0B6623");
+  text('See the pattern, Remember it! Recreate!!', width / 2, height - 10);
+
+
   difficultyChoosePD('Easy', width / 2, 120, "patternDragEasy");
   difficultyChoosePD('Medium', width / 2, 180, "patternDragMedium");
   difficultyChoosePD('Hard', width / 2, 240, "patternDragHard");
@@ -783,6 +814,11 @@ function patternDrag() {
   }
   displayScore();
   displayRemaining();
+
+  fill("#EAF8F1");
+  rect (5 , 5 , 100 , 30 , 5 , 5);
+  fill("Black");
+  text('ESC to Exit' , 55 , 20,);
   if (keyCode == ESCAPE && keyIsPressed) {
     page = "patternDragMenu";
   }
@@ -1004,6 +1040,7 @@ let circleDiameter;
 let numCircles;
 let targetColor;
 let colors;
+let lives;
 
 //COLOR CLICKER MENU ________________________________________
 function colorClickerMenu() {
@@ -1014,10 +1051,12 @@ function colorClickerMenu() {
   text('Color Clicker', width / 2, 50);
 
   //instructions
-  textSize(16);
-  fill(0);
-  text('Click on the circles of the target color!', width / 2, height - 10);
+  textSize(20);
 
+  textFont('Montserrat');
+  fill("#5762f5");
+  stroke("#0B6623");
+  text('Click on the circles of the target color!', width / 2, height - 10);
   difficultyChooseCC('Easy', width / 2, 120, "colorClickerEasy");
   difficultyChooseCC('Medium', width / 2, 180, "colorClickerMedium");
   difficultyChooseCC('Hard', width / 2, 240, "colorClickerHard");
@@ -1053,59 +1092,35 @@ function difficultyChooseCC(label, x, y, mode) {
           switch(page) {
             case "colorClickerEasy":
               difficulty = "Easy";
+              lives = 5;
               colors = ['red', 'blue'];
               targetColor = random(colors);
               numCircles = 30;
               circleDiameter = 40;
-
-              for (let i = 0; i < numCircles; i++) {
-                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
-                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
-                let color = random(colors);
-                if (color === targetColor) {
-                  remaining++;
-                }
-                circles.push({ x, y, color, clicked: false });
-              }
+              CirclePositionConstruct();
               break;
             case "colorClickerMedium":
               difficulty = "Medium";
+              lives = 3;
               colors = ['red', 'blue' , 'green'];
               targetColor = random(colors);
               numCircles = 45;
               circleDiameter = 30;
-
-              for (let i = 0; i < numCircles; i++) {
-                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
-                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
-                let color = random(colors);
-                if (color === targetColor) {
-                  remaining++;
-                }
-                circles.push({ x, y, color, clicked: false });
-              }
+              CirclePositionConstruct();
               break;
             case "colorClickerHard":
               difficulty = "Hard";
+              lives = 2;
               colors = ['red', 'blue' , 'green' , 'yellow'];
               targetColor = random(colors);
               numCircles = 60;
               circleDiameter = 20;
-
-              for (let i = 0; i < numCircles; i++) {
-                let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
-                let y = random(circleDiameter / 2 + 30, height - (circleDiameter / 2) - 1); // this one also prevnets circles near the counters
-                let color = random(colors);
-                if (color === targetColor) {
-                  remaining++;
-                }
-                circles.push({ x, y, color, clicked: false });
-              }
+              CirclePositionConstruct();
               break;
             default:
-              maxScore = remaining
               return;
           }
+          maxScore = remaining;
         }
     } else {
         fill("#E0F2F7");
@@ -1136,10 +1151,20 @@ function colorClicker() {
     }
   }
 
+  //Life display
+  fill (0);
+  textSize(24);
+  text('Lives: ' , 40 , 55);
+  for(let i = 0; i < lives; i++) {
+    image(lifeIcon , textWidth('Lives: ') + 5 + (i * 35), 40 , 30 , 30);
+  }
+
   // Display the target color
   textSize(24);
   fill(0);
-  text(`Target: ${targetColor}`, width / 2, 30);
+  text('Target: ' , (width / 2) - (textWidth('Target: ') / 2) , 30);
+  fill(targetColor);
+  text(`${targetColor}` , (width / 2) + (textWidth(`${targetColor}`) / 2) , 30);
 
   // Check if all circles of the target color have been clicked
   if (allTargetCirclesClicked()) {
@@ -1148,6 +1173,36 @@ function colorClicker() {
 
   displayScore();
   displayRemaining();
+
+  fill("#EAF8F1");
+  rect (5 , 5 , 100 , 30 , 5 , 5);
+  fill("Black");
+  text('ESC to Exit' , 55 , 20);
+  if (keyCode == ESCAPE && keyIsPressed) {
+    page = "colorClickerMenu";
+  }
+}
+
+function CirclePositionConstruct() {
+  do {
+    let x = random(circleDiameter / 2 , width - (circleDiameter / 2) - 1); //prevents circles from going out of screen
+    let y = random(circleDiameter / 2 + 60, height - (circleDiameter / 2) - 1); // this one also prevents circles near the counters
+    let validPosition = true;
+    for (let i = 0; i < circles.length; i++ ) {
+      let circleDistance = dist(circles[i].x , circles[i].y , x , y);
+      if (circleDistance < circleDiameter) {
+        validPosition = false;
+        break;
+      }
+    }
+    if (!validPosition) {continue;}
+    let color = random(colors);
+    if (color === targetColor) {
+      remaining++;
+    }
+    circles.push({ x, y, color, clicked: false });
+    numCircles--;
+  } while(numCircles > 0);
 }
 
 function colorClickerMousePressed() {
