@@ -148,7 +148,7 @@ function draw() {
     patternDragMenu();
   }
   else if (page == "patternDragEasy" ||page == "patternDragMedium" ||page == "patternDragHard") {
-    patternDrag();
+    patternDrag(difficulty);
   }
   else if (page == "colorClickerMenu") {
     colorClickerMenu();
@@ -794,7 +794,7 @@ function difficultyChoosePD(label, x, y, mode) {
 
 //PATTERN DRAG GAME _________________________________________
 
-function patternDrag() {
+function patternDrag(model) {
   strokeWeight(1);
   drawDots();
   if (remaining < 0) {
@@ -814,7 +814,10 @@ function patternDrag() {
   }
   displayScore();
   displayRemaining();
+  textSize(24);
+  text(model , width / 2, 30);
 
+  textSize(16);
   fill("#EAF8F1");
   rect (5 , 5 , 100 , 30 , 5 , 5);
   fill("Black");
@@ -824,10 +827,15 @@ function patternDrag() {
   }
 
   //NOTE
+  textSize(20);
   textStyle(ITALIC);
   text('Avoid hovering over uncounted dots in the pattern,\n' + 
-         'as it may connect to them and alter the design.' , width / 2 , height / 2 - 100);
+         'as it may connect to them and alter the design.' , width / 2 , height - 50);
   textStyle(NORMAL);
+
+  //Timer draw
+  noStroke();
+  timerDraw();
 }
 
 function generatePattern() {
@@ -883,6 +891,7 @@ function drawPattern() {
     stroke("White");
     strokeWeight(1);
     fill("white");
+    textSize(15);
     text(i + 1 , dots[pattern[i + 1]].x , dots[pattern[i + 1]].y);
     fill(153, 235, 255);
 
@@ -1009,12 +1018,13 @@ function updateTimer() {
     timer--;
   }
   if (timer <= 0) {
+    score--;
     resetGame(PDTimer , PDSteps);
   }
 }
   
 function keyPressed() {
-  if (key === 'r' && ["PatternDragEasy" , "PatternDragMedium" , "PatternDragEasy"].includes(difficulty)) {
+  if (key === 'r' && ["PatternDragEasy" , "PatternDragMedium" , "PatternDragHard"].includes(page)) {
     resetGame(PDTimer , PDSteps);
   }
 }
