@@ -475,6 +475,7 @@ let remaining;
 let difficulty;
 let mode;
 let maxScore;
+let timer;
 
 //Common Functions
 function displayScore() {
@@ -694,7 +695,6 @@ let dots = [];
 let pattern = [];
 let userPattern = [];
 let showPattern = true;
-let timer;
 let drawTimer;
 let PDTimer;
 let PDSteps;
@@ -1239,14 +1239,12 @@ function colorClickerMousePressed() {
         blankSpaceClicked = false;
         circles[i].clicked = true; // Mark this circle as clicked
       } else {
-        score--; // Incorrect color clicked
-        lives--;
+        lives--; // Incorrect color clicked
         blankSpaceClicked = false;
       }
     }
   }
   if (blankSpaceClicked) {
-    score--;
     lives--;
   }
 }
