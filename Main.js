@@ -1269,6 +1269,5 @@ function timerDraw() {
     fill(255 , 0 , 0);   //last ten seconds alert
   }
   textSize(24);
-  //text('Timer :' , width - textWidth('Timer :') - 20 , 40);
   text(`Timer : ${timer}` , width - textWidth('Timer :') / 2 - 20, 50);
 }
