@@ -797,7 +797,7 @@ function difficultyChoosePD(label, x, y, mode) {
 function patternDrag() {
   strokeWeight(1);
   drawDots();
-  if (remaining == 0) {
+  if (remaining < 0) {
     gameOver = true;
   }
 
@@ -1041,6 +1041,7 @@ let numCircles;
 let targetColor;
 let colors;
 let lives;
+let Timer;
 
 //COLOR CLICKER MENU ________________________________________
 function colorClickerMenu() {
@@ -1049,6 +1050,9 @@ function colorClickerMenu() {
   textAlign(CENTER , CENTER);
   fill(0);
   text('Color Clicker', width / 2, 50);
+
+  //interval reset
+  clearInterval(Timer);
 
   //instructions
   textSize(20);
@@ -1097,6 +1101,7 @@ function difficultyChooseCC(label, x, y, mode) {
               targetColor = random(colors);
               numCircles = 30;
               circleDiameter = 40;
+              timer = 60;
               CirclePositionConstruct();
               break;
             case "colorClickerMedium":
@@ -1106,6 +1111,7 @@ function difficultyChooseCC(label, x, y, mode) {
               targetColor = random(colors);
               numCircles = 45;
               circleDiameter = 30;
+              timer = 45;
               CirclePositionConstruct();
               break;
             case "colorClickerHard":
@@ -1115,12 +1121,14 @@ function difficultyChooseCC(label, x, y, mode) {
               targetColor = random(colors);
               numCircles = 60;
               circleDiameter = 20;
+              timer = 30;
               CirclePositionConstruct();
               break;
             default:
               return;
           }
           maxScore = remaining;
+          Timer = setInterval(() => {timer--;} , 1000);
         }
     } else {
         fill("#E0F2F7");
@@ -1141,6 +1149,10 @@ function colorClicker() {
     mode = "colorClickerMenu";
     return;
   }
+  
+  if (timer == 0) {
+    gameOver = true;
+  }
 
   // Draw all circles (only those that are not clicked)
   for (let i = 0; i < circles.length; i++) {
@@ -1154,21 +1166,28 @@ function colorClicker() {
   //Life display
   fill (0);
   textSize(24);
-  text('Lives: ' , 40 , 55);
+  text('Lives: ' , 40 , 50);
   for(let i = 0; i < lives; i++) {
-    image(lifeIcon , textWidth('Lives: ') + 5 + (i * 35), 40 , 30 , 30);
+    image(lifeIcon , textWidth('Lives: ') + 5 + (i * 35), 35 , 30 , 30);
   }
+
+  //timer Draw
+  timerDraw();
 
   // Display the target color
   textSize(24);
   fill(0);
-  text('Target: ' , (width / 2) - (textWidth('Target: ') / 2) , 30);
+  text('Target: ' , (width / 2) - (textWidth('Target: ') / 2) , 25);
   fill(targetColor);
-  text(`${targetColor}` , (width / 2) + (textWidth(`${targetColor}`) / 2) , 30);
+  text(`${targetColor}` , (width / 2) + (textWidth(`${targetColor}`) / 2) , 25);
 
   // Check if all circles of the target color have been clicked
   if (allTargetCirclesClicked()) {
     gameOver = true;  // End the game if all target color circles are clicked
+  }
+
+  if (lives === 0) {
+    gameOver = true;
   }
 
   displayScore();
@@ -1221,11 +1240,15 @@ function colorClickerMousePressed() {
         circles[i].clicked = true; // Mark this circle as clicked
       } else {
         score--; // Incorrect color clicked
+        lives--;
         blankSpaceClicked = false;
       }
     }
   }
-  if (blankSpaceClicked) {score--;}
+  if (blankSpaceClicked) {
+    score--;
+    lives--;
+  }
 }
 
 function allTargetCirclesClicked() {
@@ -1236,4 +1259,16 @@ function allTargetCirclesClicked() {
     }
   }
   return true;  // All target color circles have been clicked
+}
+
+function timerDraw() {
+  if (timer > 10) {
+    fill(0);
+  }
+  else {
+    fill(255 , 0 , 0);   //last ten seconds alert
+  }
+  textSize(24);
+  //text('Timer :' , width - textWidth('Timer :') - 20 , 40);
+  text(`Timer : ${timer}` , width - textWidth('Timer :') / 2 - 20, 50);
 }
