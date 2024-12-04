@@ -22,7 +22,7 @@ let lifeIcon;
 
 //IMG
 let Bg;
-let VidBg
+let VidBg;
 let img1;
 let img2;
 let img3;
@@ -112,7 +112,7 @@ function videoLoad() {
 }
 
 function gameName() {
-  textAlign(LEFT , LEFT);
+  textAlign(LEFT , TOP);
   textSize(30);
   fill("#003366");
   stroke("#003366");
@@ -174,7 +174,7 @@ function draw() {
 }
 
 function homePage() {
-  textAlign(LEFT , LEFT);
+  textAlign(LEFT , TOP);
     
   //text alt
   stroke("black");
@@ -210,12 +210,12 @@ function settingsPage() {
   fill("black");
   stroke("black");
   strokeWeight(1);
-  text("Music:" , 230 , 130)
+  text("Music:" , 230 , 130);
 
   musicSwitchColor = lerpColor(musicSwitchColor , musicSwitchColorTarget , 0.2);
   fill(musicSwitchColor);
   strokeWeight(4);
-  stroke("Black")
+  stroke("Black");
   rect(290 , 120 , 60 , 20 , 10);
 
   fill("Black");
@@ -266,7 +266,7 @@ function settingsPage() {
   fill("black");
   stroke("black");
   brightnessBar = lerp(brightnessBar , brightnessBarTaget , 0.2);
-  Brightness = map(brightnessBar , 245 , 395 , 0 , 1);
+  Brightness = map(brightnessBar , 245 , 395 , 0.2 , 1);
   circle(brightnessBar , 205 , 20);
   
   //HOVER
@@ -558,6 +558,7 @@ function aimLabMenu() {
   difficultyChooseAL('Medium', width / 2, 180, "aimLabMedium");
   difficultyChooseAL('Hard', width / 2, 240, "aimLabHard");
   image(backArrow , BAx , BAy, BAlen , BAwid);
+  //Exit Hover and click
   if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
     BAx = 25;
     BAy = 255;
@@ -650,7 +651,7 @@ function aimLab(model) {
     fill("#EAF8F1");
     rect (5 , 5 , 100 , 30 , 5 , 5);
     fill("Black");
-    text('ESC to Exit' , 55 , 20,);
+    text('ESC to Exit' , 55 , 20);
     if (keyCode == ESCAPE && keyIsPressed) {
       page = "aimLabMenu";
     }
@@ -698,9 +699,9 @@ let showPattern = true;
 let drawTimer;
 let PDTimer;
 let PDSteps;
-let first = true;
 let patternStep;
 let outcomeColor = "yellow";
+let scoreChecked = false;
 
 //PATTERN DRAG MENU _________________________________________
 function patternDragMenu() {
@@ -725,6 +726,7 @@ function patternDragMenu() {
   difficultyChoosePD('Medium', width / 2, 180, "patternDragMedium");
   difficultyChoosePD('Hard', width / 2, 240, "patternDragHard");
   image(backArrow , BAx , BAy, BAlen , BAwid);
+  //Exit Hover and click
   if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
     BAx = 25;
     BAy = 255;
@@ -821,7 +823,7 @@ function patternDrag(model) {
   fill("#EAF8F1");
   rect (5 , 5 , 100 , 30 , 5 , 5);
   fill("Black");
-  text('ESC to Exit' , 55 , 20,);
+  text('ESC to Exit' , 55 , 20);
   if (keyCode == ESCAPE && keyIsPressed) {
     page = "patternDragMenu";
   }
@@ -932,7 +934,7 @@ function mouseReleased() {
   
 function findClosestDot(x, y) {
   let closestIndex = -1;
-  let closestDistance = 30;
+  let closestDistance = 15;
   for (let i = 0; i < dots.length; i++) {
     let d = dist(x, y, dots[i].x, dots[i].y);
     if (d < closestDistance) {
@@ -944,8 +946,6 @@ function findClosestDot(x, y) {
 }
   
 function checkUserPattern() {
-  let interval;
-  showPattern = false;
   let correct = true;
   if (userPattern.length === pattern.length) {
     for (let i = 0; i < pattern.length; i++) {
@@ -969,6 +969,7 @@ function checkUserPattern() {
     resetGame(PDTimer , PDSteps);
     outcomeColor = "yellow";
   }, 1000);
+  scoreChecked = true;
 }
   
 function drawUserPattern() {
@@ -995,7 +996,8 @@ function drawUserPattern() {
     stroke("White");
     strokeWeight(1);
     fill("white");
-    text(i + 1 , dots[pattern[i + 1]].x , dots[pattern[i + 1]].y);
+    textSize(15);
+    text(i + 1 , dots[userPattern[i + 1]].x , dots[userPattern[i + 1]].y);
 
     let arrowX1 = x2 - 20 * cos(angle + PI / 6);
     let arrowY1 = y2 - 20 * sin(angle + PI / 6);
@@ -1014,10 +1016,10 @@ function drawUserPattern() {
 }
   
 function updateTimer() {
-  if (!gameOver && !showPattern) {
+  if (!gameOver && !showPattern && !scoreChecked) {
     timer--;
   }
-  if (timer <= 0) {
+  if (timer <= 0 && !scoreChecked) {
     score--;
     resetGame(PDTimer , PDSteps);
   }
@@ -1036,9 +1038,9 @@ function resetGame(PDTimer , PDSteps) {
   gameOver = false;
   timer = PDTimer;
   patternStep = PDSteps;
+  scoreChecked = false;
   generatePattern();
   setTimeout(() => {
-    first = true;
     showPattern = false; // Show pattern for 3 seconds
   }, 3000);
 }
@@ -1075,6 +1077,7 @@ function colorClickerMenu() {
   difficultyChooseCC('Medium', width / 2, 180, "colorClickerMedium");
   difficultyChooseCC('Hard', width / 2, 240, "colorClickerHard");
   image(backArrow , BAx , BAy, BAlen , BAwid);
+  //Exit Hover and click
   if ((mouseX > 25 && mouseX < 105) && (mouseY > 255 && mouseY < 335)) {
     BAx = 25;
     BAy = 255;
